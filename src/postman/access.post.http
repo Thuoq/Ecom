@@ -8,3 +8,14 @@ Content-Type: application/json
   "email": "a3631117@gmail.com",
   "password": "avc123"
 }
+
+### Header
+POST http://localhost:3033/v1/api/shop/signup
+Content-Type: application/json
+x-api-key: b5e5b485ccf2f42371664e28df25fc565ccb0f0c6fae7370ed5c98e14748b9f6b142bcd9e7bde12ec91e43f8c804ac8534543c1304cfdcc9f4bb1cb83d5e8dbe
+
+{
+  "name": "Thuong",
+  "email": "a3631118@gmail.com",
+  "password": "avc123"
+}
