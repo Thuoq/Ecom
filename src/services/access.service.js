@@ -1,7 +1,7 @@
 'use strict';
 const userModel = require('../models/user.model');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 const ROLE_USER = {
     WRITER: 'WRITER',
     EDITOR: 'EDITOR',
@@ -31,38 +31,28 @@ class AccessService {
             });
             if (newUser) {
                 // created privateKEy, public
-                const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
-                    modulusLength: 4096,
-                    publicKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem'
-                    }, // Thuật toán bất đối xứng
-                    privateKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem'
-                    }
-                });
-                const publicKeyString = await KeyTokenService.createKeyToken({
+                const privateKey = crypto.randomBytes(64).toString('hex');
+                const publicKey = crypto.randomBytes(64).toString('hex');
+                const keyStores = await KeyTokenService.createKeyToken({
                     userId: newUser._id,
+                    privateKey,
                     publicKey
                 });
-                if (!publicKeyString) {
+                if (!keyStores) {
                     return {
                         code: 'xxxx',
                         message: 'PublicKeyString  error!'
                     };
                 }
-                const publicKeyObject = crypto.createPublicKey(publicKeyString);
 
                 const tokens = await createTokenPair(
                     {
                         userId: newUser._id,
                         email
                     },
-                    publicKeyObject,
+                    publicKey,
                     privateKey
                 );
-                console.log('Token:: ', tokens);
                 return {
                     code: 201,
                     metadata: {
