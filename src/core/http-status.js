@@ -18,6 +18,10 @@ const HTTP_STATUS = {
     CREATED: {
         status: 201,
         reason: 'Created'
+    },
+    AUTHORIZATION: {
+        status: 401,
+        reason: 'Auth failure'
     }
 };
 

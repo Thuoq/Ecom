@@ -11,14 +11,51 @@ const ROLE_USER = {
 const KeyTokenService = require('./keyToken.service');
 const { createTokenPair } = require('../auth/authUtils');
 const { getInfoData } = require('../../utils');
-const { BadRequestError } = require('../core/error.response');
+const { findByEmail } = require('./user.service');
+const { AuthFailureError, BadRequestError } = require('../core/error.response');
 class AccessService {
+    static logIn = async ({ email, password, refreshToken = null }) => {
+        const user = await findByEmail({ email });
+        if (!user) {
+            throw new AuthFailureError('Wrong email or password');
+        }
+        const isMatchingPassword = bcrypt.compare(password, user.password);
+        if (!isMatchingPassword) {
+            throw new AuthFailureError('Wrong email or password');
+        }
+        const privateKey = crypto.randomBytes(64).toString('hex');
+        const publicKey = crypto.randomBytes(64).toString('hex');
+        const { _id: userId } = user;
+        const tokens = await createTokenPair(
+            {
+                userId,
+                email: user.email
+            },
+            privateKey,
+            publicKey
+        );
+        console.log(refreshToken);
+        await KeyTokenService.createKeyToken({
+            userId,
+            privateKey,
+            publicKey,
+            refreshToken: tokens.refreshToken
+        });
+        return {
+            user: getInfoData({
+                fields: ['email', 'name', '_id'],
+                object: user
+            }),
+            tokens
+        };
+    };
     static signUp = async ({ name, email, password }) => {
         // check email exits
-        const user = await userModel.findOne({ email }).lean();
+        const user = await findByEmail({ email });
         if (user) {
             throw new BadRequestError('Error: Account has registered !');
         }
+
         const passwordHash = await bcrypt.hash(password, 10);
         const newUser = await userModel.create({
             name,
@@ -27,29 +64,27 @@ class AccessService {
             roles: [ROLE_USER.USER]
         });
         if (newUser) {
+            const { _id: userId } = newUser;
             // created privateKEy, public
             const privateKey = crypto.randomBytes(64).toString('hex');
             const publicKey = crypto.randomBytes(64).toString('hex');
-            const keyStores = await KeyTokenService.createKeyToken({
-                userId: newUser._id,
-                privateKey,
-                publicKey
-            });
-            if (!keyStores) {
-                return {
-                    code: 'xxxx',
-                    message: 'PublicKeyString  error!'
-                };
-            }
-
             const tokens = await createTokenPair(
                 {
-                    userId: newUser._id,
+                    userId,
                     email
                 },
                 publicKey,
                 privateKey
             );
+            const keyStores = await KeyTokenService.createKeyToken({
+                userId,
+                privateKey,
+                publicKey,
+                refreshToken: tokens.refreshToken
+            });
+            if (!keyStores) {
+                throw new BadRequestError('error');
+            }
             return {
                 code: 201,
                 metadata: {

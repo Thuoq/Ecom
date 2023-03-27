@@ -19,7 +19,16 @@ class BadRequestError extends ErrorResponse {
         super(message, statusCode);
     }
 }
+class AuthFailureError extends ErrorResponse {
+    constructor(
+        message = HTTP_STATUS.AUTHORIZATION.reason,
+        statusCode = HTTP_STATUS.AUTHORIZATION.status
+    ) {
+        super(message, statusCode);
+    }
+}
 module.exports = {
     ConflictRequestError,
-    BadRequestError
+    BadRequestError,
+    AuthFailureError
 };
