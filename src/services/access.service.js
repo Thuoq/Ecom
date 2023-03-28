@@ -12,13 +12,44 @@ const KeyTokenService = require('./keyToken.service');
 const { createTokenPair } = require('../auth/authUtils');
 const { getInfoData } = require('../../utils');
 const { findByEmail } = require('./user.service');
-const { AuthFailureError, BadRequestError } = require('../core/error.response');
+const { AuthFailureError, BadRequestError, ForbiddenError } = require('../core/error.response');
 class AccessService {
+    static handleRefreshToken = async ({ keyToken, user, refreshToken }) => {
+        if (keyToken.refreshTokenUsed.includes(refreshToken)) {
+            await KeyTokenService.removeKeyById(keyToken._id);
+            throw ForbiddenError('Something wrong ! please login again');
+        }
+        if (keyToken.refreshToken !== refreshToken)
+            throw new AuthFailureError('Shop not registred');
+        const tokens = await createTokenPair(
+            {
+                userId: user.userId,
+                email: user.email
+            },
+            keyToken.publicKey,
+            keyToken.privateKey
+        );
+        await keyToken.update({
+            $set: {
+                refreshToken: tokens.refreshToken
+            },
+            $add: {
+                refreshTokenUsed: refreshToken
+            }
+        });
+        return {
+            user: getInfoData({
+                fields: ['email', 'name', '_id'],
+                object: user
+            }),
+            tokens
+        };
+    };
     static logOut = async (keyStoreId) => {
         const delKey = await KeyTokenService.removeKeyById(keyStoreId);
         return delKey;
     };
-    static logIn = async ({ email, password, refreshToken = null }) => {
+    static logIn = async ({ email, password }) => {
         const user = await findByEmail({ email });
         if (!user) {
             throw new AuthFailureError('Wrong email or password');
@@ -35,8 +66,8 @@ class AccessService {
                 userId,
                 email: user.email
             },
-            privateKey,
-            publicKey
+            publicKey,
+            privateKey
         );
 
         await KeyTokenService.createKeyToken({

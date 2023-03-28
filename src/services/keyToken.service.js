@@ -3,13 +3,6 @@ const { Types } = require('mongoose');
 class KeyTokenService {
     static createKeyToken = async ({ userId, publicKey, privateKey, refreshToken }) => {
         try {
-            // level 0
-            // const tokens = await keyTokenModel.create({
-            //     user: userId,
-            //     publicKey,
-            //     privateKey
-            // });
-            // return tokens ? tokens : null;
             const filter = { user: userId };
 
             const update = {
@@ -29,14 +22,15 @@ class KeyTokenService {
         }
     };
     static findByUserId = (userId) => {
-        return keyTokenModel
-            .findOne({
-                user: new Types.ObjectId(userId)
-            })
-            .lean();
+        return keyTokenModel.findOne({
+            user: new Types.ObjectId(userId)
+        });
     };
     static removeKeyById = (id) => {
         return keyTokenModel.findByIdAndRemove({ _id: id });
+    };
+    static findByRefreshToken = async (refreshToken) => {
+        return await keyTokenModel.findOne({ refreshToken });
     };
 }
 module.exports = KeyTokenService;

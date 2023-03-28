@@ -2,9 +2,10 @@
 const { findById } = require('../services/apikey.service');
 const { asyncHandler } = require('../helpers');
 const HEADER = require('../core/request.header');
-const { AuthFailureError, NotFoundError } = require('../core/error.response');
+const { AuthFailureError, NotFoundError, ForbiddenError } = require('../core/error.response');
 const keyTokenService = require('../services/keyToken.service');
 const JWT = require('jsonwebtoken');
+const { verifyToken } = require('./authUtils');
 const apiKey = async (req, res, next) => {
     try {
         const key = req.headers[HEADER.API_KEY]?.toString();
@@ -55,17 +56,30 @@ const checkAuthentication = asyncHandler(async (req, res, next) => {
      * **/
     const userId = req.headers[HEADER.CLIENT_ID];
     if (!userId) throw new AuthFailureError('Invalid Request');
-    const keyStore = await keyTokenService.findByUserId(userId);
-    if (!keyStore) throw new NotFoundError();
+    const keyToken = await keyTokenService.findByUserId(userId);
+    if (!keyToken) throw new NotFoundError();
+    // refreshTokenPayload
+    const refreshTokenPayload = req.headers[HEADER.REFRESH_TOKEN];
+    if (refreshTokenPayload) {
+        const decodedUser = await verifyToken(refreshTokenPayload, keyToken.privateKey);
+        if (decodedUser.userId !== userId) throw new ForbiddenError('Invalid user');
+        console.log(keyToken);
+        req.keyToken = keyToken;
+        req.user = decodedUser;
+        req.refreshToken = refreshTokenPayload;
+
+        return next();
+    }
     // accessToken
     const accessToken = req.headers[HEADER.AUTHORIZATION];
-    const decodedUser = JWT.decode(accessToken, keyStore.publicKey);
+    if (!accessToken) throw new AuthFailureError('Invalid Request');
+    const decodedUser = await verifyToken(accessToken, keyToken.publicKey);
 
     if (decodedUser.userId !== userId) {
         throw new AuthFailureError('Invalid User');
     }
-    req.keyStore = keyStore;
-    next();
+    req.keyToken = keyToken;
+    return next();
 });
 module.exports = {
     apiKey,
