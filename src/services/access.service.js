@@ -14,6 +14,10 @@ const { getInfoData } = require('../../utils');
 const { findByEmail } = require('./user.service');
 const { AuthFailureError, BadRequestError } = require('../core/error.response');
 class AccessService {
+    static logOut = async (keyStoreId) => {
+        const delKey = await KeyTokenService.removeKeyById(keyStoreId);
+        return delKey;
+    };
     static logIn = async ({ email, password, refreshToken = null }) => {
         const user = await findByEmail({ email });
         if (!user) {
@@ -34,7 +38,7 @@ class AccessService {
             privateKey,
             publicKey
         );
-        console.log(refreshToken);
+
         await KeyTokenService.createKeyToken({
             userId,
             privateKey,

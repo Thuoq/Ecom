@@ -22,6 +22,10 @@ const HTTP_STATUS = {
     AUTHORIZATION: {
         status: 401,
         reason: 'Auth failure'
+    },
+    NOT_FOUND: {
+        status: 400,
+        reason: 'Not found !'
     }
 };
 
