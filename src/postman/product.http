@@ -1,0 +1,30 @@
+### Login
+POST http://localhost:3033/v1/api/auth/login
+Content-Type: application/json
+x-api-key: b5e5b485ccf2f42371664e28df25fc565ccb0f0c6fae7370ed5c98e14748b9f6b142bcd9e7bde12ec91e43f8c804ac8534543c1304cfdcc9f4bb1cb83d5e8dbe
+
+{
+  "email": "a3631122@gmail.com",
+  "password": "avc123"
+}
+
+### Product
+POST http://localhost:3033/v1/api/product
+Content-Type: application/json
+x-api-key:b5e5b485ccf2f42371664e28df25fc565ccb0f0c6fae7370ed5c98e14748b9f6b142bcd9e7bde12ec91e43f8c804ac8534543c1304cfdcc9f4bb1cb83d5e8dbe
+x-client-id:6421d51e8fbf2fdc5203be01
+authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDIxZDUxZThmYmYyZmRjNTIwM2JlMDEiLCJlbWFpbCI6ImEzNjMxMTIyQGdtYWlsLmNvbSIsImlhdCI6MTY4MDA3NzExMSwiZXhwIjoxNjgwMjQ5OTExfQ.MGGjqCExATRCby2dLqqZ3i3BCEfOrvVLENPbhpNpjAk
+
+{
+  "productName": "Iphone 14 64GB",
+  "productThumb": "someimage.jpg",
+  "productDescription": "Macbook M1 very strong",
+  "productPrice": 999,
+  "productQuantity": 10,
+  "productType": "electronic",
+  "productAttributes": {
+    "manufacturer": "China, Apple Inc",
+    "color": "Silver",
+    "model": "M1"
+  }
+}

@@ -34,8 +34,6 @@ const permission = (permission) => {
                 message: 'Permission denied '
             });
         }
-        console.log('::: PERMISSIONS', permissions);
-        // check permission OK
         const validPermission = permissions.includes(permission);
         if (!validPermission) {
             return res.status(403).json({
@@ -79,6 +77,7 @@ const checkAuthentication = asyncHandler(async (req, res, next) => {
         throw new AuthFailureError('Invalid User');
     }
     req.keyToken = keyToken;
+    req.user = decodedUser;
     return next();
 });
 module.exports = {
