@@ -16,14 +16,14 @@ x-client-id:6421d51e8fbf2fdc5203be01
 authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NDIxZDUxZThmYmYyZmRjNTIwM2JlMDEiLCJlbWFpbCI6ImEzNjMxMTIyQGdtYWlsLmNvbSIsImlhdCI6MTY4MDA3NzExMSwiZXhwIjoxNjgwMjQ5OTExfQ.MGGjqCExATRCby2dLqqZ3i3BCEfOrvVLENPbhpNpjAk
 
 {
-  "productName": "Iphone 14 64GB",
+  "productName": "Iphone 15 64GB",
   "productThumb": "someimage.jpg",
   "productDescription": "Macbook M1 very strong",
   "productPrice": 999,
   "productQuantity": 10,
-  "productType": "electronic",
+  "productType": "furniture",
   "productAttributes": {
-    "manufacturer": "China, Apple Inc",
+    "brand": "China, Apple Inc",
     "color": "Silver",
     "model": "M1"
   }
