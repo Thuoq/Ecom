@@ -1,6 +1,12 @@
 'use strict';
 const { product, clothing, electronic, furniture } = require('../models/product.model');
 const { BadRequestError } = require('../core/error.response');
+const {
+    publishProductByOwner,
+    queryProduct,
+    unPublishProductByOwner,
+    searchProductsByUser
+} = require('../models/repositories/product.repo');
 class ProductFactory {
     /*
      * type: 'Clothing'
@@ -17,6 +23,36 @@ class ProductFactory {
 
     static registerProductType(type, classRef) {
         ProductFactory.productRegistry[type] = classRef;
+    }
+
+    // QUERY///
+    /**
+     *
+     * @description Get all Drafts Product
+     * @param ownerId {ObjectId}
+     * @param limit {number}
+     * @param skip {number}
+     * @returns {Promise<Product[]>}
+     */
+    static async findAllDraftsForOwner({ ownerId, limit = 50, skip = 0 }) {
+        const query = { isDraft: true, owner: ownerId };
+        const products = await queryProduct({ query, limit, skip });
+        return products;
+    }
+    static async findAllPublishForOwner({ ownerId, limit = 50, skip = 0 }) {
+        const query = { isPublished: true, owner: ownerId };
+        const products = await queryProduct({ query, limit, skip });
+        return products;
+    }
+    // PUT //
+    static async publishProductByOwner({ ownerId, productId }) {
+        return await publishProductByOwner({ ownerId, productId });
+    }
+    static async unPublishProductByOwner({ ownerId, productId }) {
+        return await unPublishProductByOwner({ ownerId, productId });
+    }
+    static async searchProductsByUser({ keySearch }) {
+        return await searchProductsByUser({ keySearch });
     }
 }
 
